@@ -309,10 +309,10 @@ type Order struct {
 	Symbol           string           `json:"symbol"`
 	OrderID          int64            `json:"orderId"`
 	ClientOrderID    string           `json:"clientOrderId"`
-	Price            string           `json:"price"`
+	Price            float64           `json:"price"`
 	ReduceOnly       bool             `json:"reduceOnly"`
-	OrigQuantity     string           `json:"origQty"`
-	ExecutedQuantity string           `json:"executedQty"`
+	OrigQuantity     float64           `json:"origQty"`
+	ExecutedQuantity float64           `json:"executedQty"`
 	CumQuantity      string           `json:"cumQty"`
 	CumQuote         string           `json:"cumQuote"`
 	Status           OrderStatusType  `json:"status"`

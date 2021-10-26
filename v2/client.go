@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,10 +15,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/adshao/go-binance/v2/common"
-	"github.com/adshao/go-binance/v2/delivery"
-	"github.com/adshao/go-binance/v2/futures"
 	"github.com/bitly/go-simplejson"
+	"github.com/liuchenwei-echo/go-binance-api/v2/common"
+	"github.com/liuchenwei-echo/go-binance-api/v2/delivery"
+	"github.com/liuchenwei-echo/go-binance-api/v2/futures"
 )
 
 // SideType define side type of order
@@ -182,12 +183,29 @@ func getAPIEndpoint() string {
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
 func NewClient(apiKey, secretKey string) *Client {
+	transport := &http.Transport {
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	// 获取环境中的
+	proxyUrl := os.Getenv("http_proxy")
+	if len(proxyUrl) > 0 {
+		proxy, err := url.Parse(proxyUrl)
+		if err != nil {
+			panic(err)
+		}
+		transport.Proxy =  http.ProxyURL(proxy)
+	}
+
+	// http客户端
+	client := &http.Client{
+		Transport: transport,
+	}
 	return &Client{
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		BaseURL:    getAPIEndpoint(),
 		UserAgent:  "Binance/golang",
-		HTTPClient: http.DefaultClient,
+		HTTPClient: client,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
 	}
 }
