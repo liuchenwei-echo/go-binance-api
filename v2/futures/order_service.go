@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -296,12 +297,66 @@ func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *O
 	if err != nil {
 		return nil, err
 	}
-	res = new(Order)
-	err = json.Unmarshal(data, res)
+	fmt.Printf(string(data))
+	response := new(OrderString)
+	err = json.Unmarshal(data, response)
 	if err != nil {
 		return nil, err
 	}
+	res = &Order{
+		Symbol: response.Symbol,
+		OrderID: response.OrderID,
+		ClientOrderID: response.ClientOrderID,
+		Price: ParseFloat64(response.Price),
+		ReduceOnly: response.ReduceOnly,
+		OrigQuantity: ParseFloat64(response.OrigQuantity),
+		ExecutedQuantity: ParseFloat64(response.ExecutedQuantity),
+		CumQuantity: response.CumQuantity,
+		CumQuote: response.CumQuote,
+		Status: response.Status,
+		TimeInForce: response.TimeInForce,
+		Type: response.Type,
+		Side: response.Side,
+		StopPrice: response.StopPrice,
+		Time: response.Time,
+		UpdateTime: response.UpdateTime,
+		WorkingType: response.WorkingType,
+		ActivatePrice: response.ActivatePrice,
+		PriceRate: response.PriceRate,
+		AvgPrice: response.AvgPrice,
+		OrigType: response.OrigType,
+		PositionSide: response.PositionSide,
+		PriceProtect: response.PriceProtect,
+		ClosePosition: response.ClosePosition,
+	}
 	return res, nil
+}
+
+type OrderString struct {
+	Symbol           string           `json:"symbol"`
+	OrderID          int64            `json:"orderId"`
+	ClientOrderID    string           `json:"clientOrderId"`
+	Price            string           `json:"price"`
+	ReduceOnly       bool             `json:"reduceOnly"`
+	OrigQuantity     string           `json:"origQty"`
+	ExecutedQuantity string           `json:"executedQty"`
+	CumQuantity      string           `json:"cumQty"`
+	CumQuote         string           `json:"cumQuote"`
+	Status           OrderStatusType  `json:"status"`
+	TimeInForce      TimeInForceType  `json:"timeInForce"`
+	Type             OrderType        `json:"type"`
+	Side             SideType         `json:"side"`
+	StopPrice        string           `json:"stopPrice"`
+	Time             int64            `json:"time"`
+	UpdateTime       int64            `json:"updateTime"`
+	WorkingType      WorkingType      `json:"workingType"`
+	ActivatePrice    string           `json:"activatePrice"`
+	PriceRate        string           `json:"priceRate"`
+	AvgPrice         string           `json:"avgPrice"`
+	OrigType         string           `json:"origType"`
+	PositionSide     PositionSideType `json:"positionSide"`
+	PriceProtect     bool             `json:"priceProtect"`
+	ClosePosition    bool             `json:"closePosition"`
 }
 
 // Order define order info
@@ -844,4 +899,9 @@ func (s *CreateBatchOrdersService) Do(ctx context.Context, opts ...RequestOption
 
 	return batchCreateOrdersResponse, nil
 
+}
+
+func ParseFloat64(data string) float64 {
+	d, _ := strconv.ParseFloat(data, 64)
+	return d
 }
